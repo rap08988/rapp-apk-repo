@@ -48,10 +48,14 @@ jobs:
       working-directory: cordova-app
       run: echo "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz4KPHdpZGdldCBpZD0iY29tLmRvd25sb2FkLmFwcCIgdmVyc2lvbj0iMS4wLjAiCiAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnL25zL3dpZGdldHMiCiAgeG1sbnM6Y2R2PSJodHRwOi8vY29yZG92YS5hcGFjaGUub3JnL25zLzEuMCI+CiAgPG5hbWU+UmFwcCBkb3dubG9hZGVyPC9uYW1lPgogIDxkZXNjcmlwdGlvbj5CdWlsdCB3aXRoIEFQSyBCdWlsZGVyIFBybzwvZGVzY3JpcHRpb24+CiAgPGF1dGhvcj5BUEsgQnVpbGRlciBQcm88L2F1dGhvcj4KICA8Y29udGVudCBzcmM9ImluZGV4Lmh0bWwiIC8+CiAgPGljb24gc3JjPSJyZXMvaWNvbi9pY29uLnBuZyIgLz4KICA8YWNjZXNzIG9yaWdpbj0iKiIgLz4KICA8YWxsb3ctbmF2aWdhdGlvbiBocmVmPSIqIiAvPgogIDxhbGxvdy1pbnRlbnQgaHJlZj0iaHR0cDovLyovKiIgLz4KICA8YWxsb3ctaW50ZW50IGhyZWY9Imh0dHBzOi8vKi8qIiAvPgogIDxwcmVmZXJlbmNlIG5hbWU9ImFuZHJvaWQtdGFyZ2V0U2RrVmVyc2lvbiIgdmFsdWU9IjM0IiAvPgogIDxwcmVmZXJlbmNlIG5hbWU9ImFuZHJvaWQtbWluU2RrVmVyc2lvbiIgdmFsdWU9IjIyIiAvPgogIDxwcmVmZXJlbmNlIG5hbWU9IlNwbGFzaFNjcmVlbkRlbGF5IiB2YWx1ZT0iMCIgLz4KICA8cHJlZmVyZW5jZSBuYW1lPSJBdXRvSGlkZVNwbGFzaFNjcmVlbiIgdmFsdWU9InRydWUiIC8+CiAgPHByZWZlcmVuY2UgbmFtZT0iRmFkZVNwbGFzaFNjcmVlbiIgdmFsdWU9ImZhbHNlIiAvPgogIDxwcmVmZXJlbmNlIG5hbWU9IlNob3dTcGxhc2hTY3JlZW5TcGlubmVyIiB2YWx1ZT0iZmFsc2UiIC8+CiAgPHByZWZlcmVuY2UgbmFtZT0iU3BsYXNoTWFpbnRhaW5Bc3BlY3RSYXRpbyIgdmFsdWU9ImZhbHNlIiAvPgo8L3dpZGdldD4=" | base64 -d > config.xml
 
-    - name: Copy app icon into Cordova project
+    - name: Generate Android launcher icons from custom icon
       run: |
+        mkdir -p cordova-app/resources
+        cp res/icon/icon.png cordova-app/resources/icon.png
         mkdir -p cordova-app/res/icon
         cp res/icon/icon.png cordova-app/res/icon/icon.png
+        cd cordova-app
+        npx --yes cordova-res android --skip-config --copy 2>/dev/null || true
 
     - name: Write index.html
       working-directory: cordova-app/www
