@@ -3,9 +3,6 @@ name: Build APK
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - '.github/workflows/build-apk.yml'
-      - 'app-source/**'
 
 jobs:
   build:
@@ -37,77 +34,35 @@ jobs:
       run: npm install -g cordova@12
 
     - name: Create Cordova project
-      run: |
-        cordova create cordova-app com.download.app "Rapp downloader"
+      run: cordova create cordova-app com.download.app "Rapp downloader"
 
     - name: Add Android platform
       working-directory: cordova-app
-      run: cordova platform add android@12
+      run: cordova platform add android
 
     - name: Write config.xml
       working-directory: cordova-app
-      run: |
-        cat > config.xml << 'XMLEOF'
-        <?xml version='1.0' encoding='utf-8'?>
-        <widget id="com.download.app" version="1.0.0"
-          xmlns="http://www.w3.org/ns/widgets"
-          xmlns:cdv="http://cordova.apache.org/ns/1.0">
-          <name>Rapp downloader</name>
-          <description>Built with APK Builder Pro</description>
-          <author>APK Builder Pro</author>
-          <content src="index.html" />
-          <plugin name="cordova-plugin-whitelist" spec="^1" />
-          <access origin="*" />
-          <allow-navigation href="*" />
-          <allow-intent href="http://*/*" />
-          <allow-intent href="https://*/*" />
-          <preference name="android-targetSdkVersion" value="34" />
-          <preference name="android-minSdkVersion" value="22" />
-          <preference name="Fullscreen" value="false" />
-        </widget>
-        XMLEOF
+      run: echo "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz4KPHdpZGdldCBpZD0iY29tLmRvd25sb2FkLmFwcCIgdmVyc2lvbj0iMS4wLjAiCiAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnL25zL3dpZGdldHMiCiAgeG1sbnM6Y2R2PSJodHRwOi8vY29yZG92YS5hcGFjaGUub3JnL25zLzEuMCI+CiAgPG5hbWU+UmFwcCBkb3dubG9hZGVyPC9uYW1lPgogIDxkZXNjcmlwdGlvbj5CdWlsdCB3aXRoIEFQSyBCdWlsZGVyIFBybzwvZGVzY3JpcHRpb24+CiAgPGF1dGhvcj5BUEsgQnVpbGRlciBQcm88L2F1dGhvcj4KICA8Y29udGVudCBzcmM9ImluZGV4Lmh0bWwiIC8+CiAgPGFjY2VzcyBvcmlnaW49IioiIC8+CiAgPGFsbG93LW5hdmlnYXRpb24gaHJlZj0iKiIgLz4KICA8YWxsb3ctaW50ZW50IGhyZWY9Imh0dHA6Ly8qLyoiIC8+CiAgPGFsbG93LWludGVudCBocmVmPSJodHRwczovLyovKiIgLz4KICA8cHJlZmVyZW5jZSBuYW1lPSJhbmRyb2lkLXRhcmdldFNka1ZlcnNpb24iIHZhbHVlPSIzNCIgLz4KICA8cHJlZmVyZW5jZSBuYW1lPSJhbmRyb2lkLW1pblNka1ZlcnNpb24iIHZhbHVlPSIyMiIgLz4KPC93aWRnZXQ+" | base64 -d > config.xml
 
-    - name: Write app HTML
+    - name: Write index.html
       working-directory: cordova-app/www
       run: |
-        rm -f index.html css/index.css js/index.js img/logo.png
-        cat > index.html << 'HTMLEOF'
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8"/>
-          <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
-          <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:"/>
-          <title>Rapp downloader</title>
-          <style>
-            * { margin:0; padding:0; box-sizing:border-box }
-            html,body,iframe { width:100%; height:100%; border:none; overflow:hidden }
-          </style>
-        </head>
-        <body>
-          <iframe src="https://rapzz-audio-downloader.replit.app/" allowfullscreen></iframe>
-        </body>
-        </html>
-        HTMLEOF
+        rm -rf *
+        echo "PCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICA8bWV0YSBjaGFyc2V0PSJ1dGYtOCIvPgogIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsaW5pdGlhbC1zY2FsZT0xLHVzZXItc2NhbGFibGU9bm8iLz4KICA8bWV0YSBodHRwLWVxdWl2PSJDb250ZW50LVNlY3VyaXR5LVBvbGljeSIgY29udGVudD0iZGVmYXVsdC1zcmMgKiAndW5zYWZlLWlubGluZScgJ3Vuc2FmZS1ldmFsJyBkYXRhOiBibG9iOiIvPgogIDx0aXRsZT5SYXBwIGRvd25sb2FkZXI8L3RpdGxlPgogIDxzdHlsZT4KICAgICogeyBtYXJnaW46MDsgcGFkZGluZzowOyBib3gtc2l6aW5nOmJvcmRlci1ib3ggfQogICAgaHRtbCxib2R5LGlmcmFtZSB7IHdpZHRoOjEwMCU7IGhlaWdodDoxMDAlOyBib3JkZXI6bm9uZTsgb3ZlcmZsb3c6aGlkZGVuIH0KICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxpZnJhbWUgc3JjPSJodHRwczovL3JhcHp6LWF1ZGlvLWRvd25sb2FkZXIucmVwbGl0LmFwcC8iIGFsbG93ZnVsbHNjcmVlbj48L2lmcmFtZT4KPC9ib2R5Pgo8L2h0bWw+" | base64 -d > index.html
 
-    - name: Build release APK
+    - name: Build debug APK
       working-directory: cordova-app
-      run: cordova build android --release -- --packageType=apk
+      run: cordova build android --debug
 
-    - name: Find APK
-      id: find_apk
+    - name: Find and upload APK
       run: |
         APK=$(find cordova-app/platforms/android -name "*.apk" | head -1)
-        echo "path=$APK" >> $GITHUB_OUTPUT
-        echo "Found APK: $APK"
+        echo "APK found: $APK"
+        cp "$APK" "Rapp-downloader-debug.apk"
 
-    - name: Rename APK
-      run: |
-        cp "${{ steps.find_apk.outputs.path }}" "Rapp-downloader-release.apk"
-
-    - name: Upload APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: Rapp-downloader-apk
-        path: Rapp-downloader-release.apk
+        path: Rapp-downloader-debug.apk
         retention-days: 30
