@@ -1,0 +1,97 @@
+name: Build APK - Rapp downloader
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install Cordova
+      run: npm install -g cordova
+      
+    - name: Create Cordova project
+      run: |
+        cordova create cordova-app com.download.app "Rapp downloader"
+        cd cordova-app
+        cordova platform add android
+        
+    - name: Configure app
+      run: |
+        cd cordova-app
+        cat > config.xml << 'EOF'
+        <?xml version='1.0' encoding='utf-8'?>
+        <widget id="com.download.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets">
+          <name>Rapp downloader</name>
+          <description>Built with APK Builder Pro</description>
+          <author>APK Builder Pro</author>
+          <content src="index.html" />
+          <plugin name="cordova-plugin-whitelist" spec="^1" />
+          <access origin="*" />
+          <allow-navigation href="*" />
+          <allow-intent href="http://*/*" />
+          <allow-intent href="https://*/*" />
+          <preference name="android-targetSdkVersion" value="34" />
+          <preference name="Fullscreen" value="false" />
+          <preference name="StatusBarOverlaysWebView" value="false" />
+          <preference name="BackgroundColor" value="0xff1e1e2e" />
+        </widget>
+        EOF
+        
+    - name: Setup source content
+      run: |
+        cd cordova-app/www
+        cat > index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Rapp downloader</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    iframe { width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+  <iframe src="https://rapzz-audio-downloader.replit.app/" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+</body>
+</html>
+HTMLEOF
+        
+    - name: Build APK
+      run: |
+        cd cordova-app
+        cordova build android --release -- --packageType=apk
+        
+    - name: Find APK
+      id: find_apk
+      run: |
+        APK_PATH=$(find cordova-app/platforms/android -name "*.apk" | head -1)
+        echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+        
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Rapp-downloader-release-apk
+        path: ${{ steps.find_apk.outputs.apk_path }}
+        if-no-files-found: error
